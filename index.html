@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CimbomNot - Sınıf Not Defteri</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* YENİ MODERN RENK PALETİ (İNDİGO & MAVİ) */
+      --primary: #4F46E5; /* İndigo Mavi (Butonlar ve Başlıklar) */
+      --secondary: #EEF2FF; /* Çok Açık İndigo (Seçili menü arka planı) */
+      --bg-main: #F8FAFC; /* Açık Gri/Mavi Ana Arka Plan */
+      --sidebar-bg: #FFFFFF; /* Yan Menü Arka Planı */
+      --text-main: #0F172A; /* Koyu Lacivert/Siyah Metin */
+      --text-muted: #64748B; /* Gri Alt Metinler */
+      --border-color: #E2E8F0; /* İnce Kenarlık Rengi */
+      --note-bg: #FFFFFF; /* Temiz Beyaz Not Kartları */
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.2s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- YAN MENÜ (SIDEBAR) --- */
+    .sidebar {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 20px;
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .brand span { color: white; }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #10B981; /* Başarılı/Aktif hissi veren yeşil renk */
+      border-radius: 50%;
+    }
+
+    .sidebar-menu {
+      padding: 20px 15px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 8px;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .menu-item.active {
+      background-color: var(--secondary);
+      color: var(--primary); /* Seçili öğenin metni de mavi olsun */
+    }
+
+    .menu-item:not(.active):hover {
+      background-color: var(--bg-main);
+    }
+
+    .menu-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin: 20px 0 10px 16px;
+      text-transform: uppercase;
+    }
+
+    .btn-outline-dashed {
+      width: calc(100% - 32px);
+      margin: 10px 16px;
+      padding: 10px;
+      background: transparent;
+      border: 1px dashed #CBD5E1;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-outline-dashed:hover {
+      background: var(--bg-main);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* --- ANA İÇERİK (MAIN CONTENT) --- */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Üst Çubuk (Topbar) */
+    .topbar {
+      height: 80px;
+      background-color: var(--sidebar-bg); /* Üst menü arka planı beyaz yapıldı */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-main); /* Arama kutusu arka planı hafif gri */
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      width: 400px;
+      transition: var(--transition);
+    }
+    
+    .search-bar:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-bar svg {
+      color: var(--text-muted);
+      margin-right: 10px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: transparent;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .view-toggles {
+      display: flex;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .view-toggle-btn {
+      padding: 8px 12px;
+      border: none;
+      background: white;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .view-toggle-btn.active {
+      background-color: var(--secondary);
+      color: var(--primary);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+      background-color: #4338CA;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Notlar Izgarası */
+    .notes-container {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      align-content: start;
+    }
+
+    .note-card {
+      background-color: var(--note-bg);
+      border: 1px solid var(--border-color); /* Notlara ince çerçeve eklendi */
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .note-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -8px rgba(79, 70, 229, 0.15);
+      border-color: #C7D2FE;
+    }
+
+    .note-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .note-card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex: 1;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .note-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: right;
+      opacity: 0.7;
+    }
+
+    /* --- MODAL (YENİ NOT EKLE PENCERESİ) --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6); /* Daha koyu, modern arka plan bulanıklığı */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(4px); /* Arka planı hafif bulanıklaştır */
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      transform: scale(0.95) translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      color: var(--text-main);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    
+    .close-btn:hover {
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+    
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-secondary {
+      background: white;
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-main);
+      transition: var(--transition);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-main);
+    }
+    
+    /* İkonlar için genel SVG ayarı */
+    svg { stroke-width: 2; }
+
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span>🦁</span>
+        <span>CimbomNot</span>
+      </div>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>Yerel Mod</span>
+      </div>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-item active">
+        <div class="menu-item-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+          Tüm Notlar
+        </div>
+      </div>
+      
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Favoriler
+        </div>
+        <span class="badge" id="favCount">0</span>
+      </div>
+
+      <div class="section-title">KLASÖRLER</div>
+      
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          Test
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn-outline-dashed">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Klasör Oluştur
+    </button>
+  </aside>
+
+  <main class="main-content">
+    
+    <header class="topbar">
+      <div class="search-bar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" placeholder="Notlarda ara...">
+      </div>
+      
+      <div class="topbar-actions">
+        <div class="view-toggles">
+          <button class="view-toggle-btn active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+          <button class="view-toggle-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          </button>
+        </div>
+        
+        <button class="btn-primary" onclick="openModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Yeni Not
+        </button>
+      </div>
+    </header>
+
+    <div id="notlar" class="notes-container">
+      </div>
+  </main>
+
+  <div id="noteModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Yeni Not Oluştur</h2>
+        <button class="close-btn" onclick="closeModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="form-group">
+        <input id="isim" placeholder="Not Başlığı veya Adınız" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <textarea id="notInput" placeholder="Notunuzu buraya yazın..." autocomplete="off"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal()">İptal</button>
+        <button class="btn-primary" onclick="notEkle()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB5inXOt8jDTQre5RbSjXYwGVy2cSKpnV0",
+      authDomain: "sinif-not-defteri-1f8c6.firebaseapp.com",
+      projectId: "sinif-not-defteri-1f8c6",
+      storageBucket: "sinif-not-defteri-1f8c6.firebasestorage.app",
+      messagingSenderId: "987248792337",
+      appId: "1:987248792337:web:aed3b6a5bd77a6de4072b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const notlarRef = collection(db, "notlar");
+
+    const q = query(notlarRef, orderBy("tarih", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const container = document.getElementById("notlar");
+      container.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const d = doc.data();
+        let tarihMetni = "";
+        if (d.tarih) {
+          tarihMetni = d.tarih.toDate().toLocaleString("tr-TR", { 
+            day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' 
+          });
+        }
+
+        container.innerHTML += `
+          <div class="note-card">
+            <h3>${d.isim}</h3>
+            <p>${d.metin}</p>
+            ${tarihMetni ? `<span class="note-date">${tarihMetni}</span>` : ''}
+          </div>`;
+      });
+    });
+
+    window.openModal = function() {
+      document.getElementById('noteModal').classList.add('active');
+    };
+
+    window.closeModal = function() {
+      document.getElementById('noteModal').classList.remove('active');
+      document.getElementById("isim").value = "";
+      document.getElementById("notInput").value = "";
+    };
+
+    window.notEkle = async function() {
+      const isim = document.getElementById("isim").value.trim();
+      const metin = document.getElementById("notInput").value.trim();
+      
+      if (!isim || !metin) return alert("Başlık ve not içeriği boş olamaz!");
+      
+      await addDoc(notlarRef, {
+        isim, metin, tarih: serverTimestamp()
+      });
+      
+      closeModal();
+    };
+  </script>
+</body>
+</html>
