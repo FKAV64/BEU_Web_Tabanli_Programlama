@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEUShareBox - Pro Sürüm</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0056b3">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>BEUShareBox <span>Pro</span></h1>
+            
+            <div id="user-profile" class="user-profile">
+                <img id="profile-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='20' fill='%23ccc'/></svg>" alt="Avatar">
+                <input type="text" id="username-input" placeholder="Adınız..." value="Kullanıcı">
+            </div>
+
+            <div class="stats-dashboard">
+                <span>📦 Ürün: <b id="stat-products">0</b></span>
+                <span>❤️ Beğeni: <b id="stat-likes">0</b></span>
+                <button id="theme-toggle" class="btn-secondary">🌙 Tema</button>
+                <button id="export-btn" class="btn-secondary">⬇️ İndir</button>
+                <label for="import-input" class="btn-secondary" style="cursor:pointer;">⬆️ Yükle</label>
+                <input type="file" id="import-input" accept=".json" hidden>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <h2>Yeni Ürün Paylaş</h2>
+            <form id="product-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="title" placeholder="Ürün Adı" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="file" id="image-upload" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <textarea id="description" placeholder="Ürün hakkında ne düşünüyorsunuz?" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="number" id="price" placeholder="Fiyat (₺)" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <select id="category" required>
+                            <option value="" disabled selected>Kategori Seçin</option>
+                            <option value="Teknoloji">Teknoloji</option>
+                            <option value="Kitap">Kitap</option>
+                            <option value="Moda">Moda</option>
+                            <option value="Kırtasiye">Kırtasiye</option>
+                            <option value="Diğer">Diğer</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Paylaş</button>
+            </form>
+        </section>
+
+        <section class="controls-section">
+            <div class="search-sort-row">
+                <input type="search" id="search-input" placeholder="Ara...">
+                
+                <select id="sort-select">
+                    <option value="newest">En Yeniler</option>
+                    <option value="price-asc">Fiyat (Artan)</option>
+                    <option value="price-desc">Fiyat (Azalan)</option>
+                    <option value="likes-desc">En Çok Beğenilenler</option>
+                </select>
+            </div>
+
+            <nav id="category-filters" role="tablist">
+                <button class="filter-btn active" data-category="Tümü">Tümü</button>
+                <button class="filter-btn" data-category="Benim Ürünlerim">👤 Benim Ürünlerim</button>
+                <button class="filter-btn" data-category="Teknoloji">Teknoloji</button>
+                <button class="filter-btn" data-category="Kitap">Kitap</button>
+                <button class="filter-btn" data-category="Moda">Moda</button>
+                <button class="filter-btn" data-category="Kırtasiye">Kırtasiye</button>
+                <button class="filter-btn" data-category="Diğer">Diğer</button>
+            </nav>
+        </section>
+
+        <section id="product-container" class="product-grid">
+            </section>
+    </main>
+
+    <div id="product-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <footer>
+        <p>&copy; 2026 BEUShareBox - Pro Sürüm</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

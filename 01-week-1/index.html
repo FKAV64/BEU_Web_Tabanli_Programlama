@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CimbomNot - Sınıf Not Defteri</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Ekran Görüntüsüne Uygun Tema Renkleri */
+      --primary: #9B0D28; /* Koyu Bordo/Kırmızı (Sol Üst) */
+      --secondary: #FDB912; /* GS Sarısı (Aktif Menü) */
+      --bg-main: #F4F5F7; /* Ana Arkaplan Gri */
+      --sidebar-bg: #FFFFFF; /* Yan Menü Beyaz */
+      --topbar-bg: #FFFFFF; /* Üst Bar Beyaz */
+      --text-main: #2D3748; 
+      --text-muted: #8E8E93;
+      --border-color: #E5E5EA;
+      --note-bg: #FFD1D1; /* Pembe Not Rengi */
+      
+      /* Klasör Modalı Renkleri */
+      --btn-create: #CC7383; /* Soluk Pembe/Kırmızı Buton */
+      --btn-cancel: #F3F4F6; /* Açık Gri Buton */
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.2s ease;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- YAN MENÜ (SIDEBAR) --- */
+    .sidebar {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 20px;
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.25rem; font-weight: 700;
+    }
+    .brand span { color: white; }
+    
+    .status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; margin-top: 4px; opacity: 0.9; color: white;
+    }
+    .status-dot {
+      width: 8px; height: 8px; background-color: #F87171; border-radius: 50%;
+    }
+
+    .sidebar-menu {
+      padding: 20px 15px; flex: 1; overflow-y: auto;
+    }
+
+    .menu-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      color: var(--text-main); font-weight: 600; cursor: pointer;
+      margin-bottom: 8px; transition: var(--transition);
+    }
+    
+    .menu-item svg { color: var(--text-muted); transition: var(--transition); }
+    .menu-item.active { background-color: var(--secondary); color: #1A1A1A; }
+    .menu-item.active svg { color: #1A1A1A; }
+    .menu-item:not(.active):hover { background-color: var(--bg-main); }
+    
+    .menu-item-left { display: flex; align-items: center; gap: 12px; }
+    .badge { font-size: 0.8rem; color: var(--text-muted); }
+
+    .section-title {
+      font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+      letter-spacing: 0.5px; margin: 20px 0 10px 16px; text-transform: uppercase;
+    }
+
+    .btn-outline-dashed {
+      width: calc(100% - 32px); margin: 10px 16px 20px 16px; padding: 10px;
+      background: transparent; border: 1px dashed #CBD5E1; border-radius: var(--radius-sm);
+      color: var(--text-muted); font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition);
+    }
+    .btn-outline-dashed:hover {
+      background: var(--bg-main); color: var(--text-main); border-color: var(--text-muted);
+    }
+
+    /* --- ANA İÇERİK (MAIN CONTENT) --- */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      height: 80px; background-color: var(--topbar-bg);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 30px; border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-bar {
+      display: flex; align-items: center; background-color: white;
+      border: 1px solid var(--border-color); border-radius: var(--radius-md);
+      padding: 10px 16px; width: 350px;
+    }
+    .search-bar svg { color: var(--text-muted); margin-right: 10px; }
+    .search-bar input {
+      border: none; outline: none; width: 100%; font-size: 0.95rem; font-family: inherit;
+    }
+
+    .topbar-actions { display: flex; align-items: center; gap: 15px; }
+
+    .view-toggles {
+      display: flex; background: white; border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm); overflow: hidden;
+    }
+    .view-toggle-btn {
+      padding: 8px 12px; border: none; background: white; cursor: pointer;
+      color: var(--text-muted); display: flex; align-items: center; justify-content: center;
+    }
+    .view-toggle-btn.active { background-color: var(--secondary); color: #1A1A1A; }
+
+    .btn-primary {
+      background-color: var(--primary); color: white; border: none;
+      padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600;
+      font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+
+    /* Notlar Izgarası */
+    .notes-container {
+      flex: 1; padding: 30px; overflow-y: auto; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px; align-content: start;
+    }
+
+    .note-card {
+      background-color: var(--note-bg); border-radius: var(--radius-lg);
+      padding: 24px; min-height: 180px; display: flex; flex-direction: column; gap: 12px;
+      cursor: pointer; transition: transform 0.2s;
+    }
+    .note-card:hover { transform: translateY(-2px); }
+    .note-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+    .note-card p {
+      font-size: 0.95rem; color: var(--text-main); opacity: 0.8; line-height: 1.5;
+      flex: 1; white-space: pre-wrap; word-wrap: break-word;
+    }
+    .note-date { font-size: 0.75rem; color: rgba(0,0,0,0.4); text-align: right; }
+
+    /* --- GENEL MODAL YAPISI --- */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4); display: flex; align-items: center;
+      justify-content: center; z-index: 1000; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    /* Standart Not Ekleme Modalı */
+    .modal-content {
+      background: white; width: 100%; max-width: 500px; padding: 30px;
+      border-radius: var(--radius-lg); transform: translateY(10px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .close-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px; border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm); font-family: inherit; font-size: 1rem;
+    }
+    .form-group textarea { height: 120px; resize: vertical; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-secondary {
+      background: white; border: 1px solid var(--border-color); padding: 10px 20px;
+      border-radius: var(--radius-sm); cursor: pointer; font-weight: 500;
+    }
+
+    /* --- ÖZEL KLASÖR OLUŞTURMA MODALI (Fotoğraftaki Tasarım) --- */
+    .folder-modal-content {
+      background: white; width: 100%; max-width: 450px;
+      border-radius: 16px; overflow: hidden; transform: scale(0.95); transition: all 0.3s ease;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+    .modal-overlay.active .folder-modal-content { transform: scale(1); }
+    
+    .folder-modal-header {
+      background-color: var(--primary); color: white; padding: 20px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .folder-modal-header h2 { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .folder-modal-header .close-btn { color: white; opacity: 0.8; }
+    .folder-modal-header .close-btn:hover { opacity: 1; }
+
+    .folder-modal-body { padding: 24px; }
+    
+    .folder-input {
+      width: 100%; padding: 14px 16px; border: 2px solid var(--border-color);
+      border-radius: 10px; font-size: 1rem; color: var(--text-main); outline: none; transition: var(--transition);
+    }
+    .folder-input:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 4px rgba(253, 185, 18, 0.15); /* Sarı parlama efekti */
+    }
+
+    .folder-modal-footer { display: flex; gap: 12px; margin-top: 24px; }
+    .folder-modal-footer button {
+      flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 1rem;
+      border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
+    }
+    .btn-cancel-folder { background-color: var(--btn-cancel); color: var(--text-muted); }
+    .btn-create-folder { background-color: var(--btn-create); color: white; }
+
+    svg { stroke-width: 2; }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span>🦁</span>
+        <span>CimbomNot</span>
+      </div>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>Yerel Mod</span>
+      </div>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-item active" id="menu-all" onclick="klasorDegistir('all')">
+        <div class="menu-item-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+          Tüm Notlar
+        </div>
+      </div>
+      
+      <div class="menu-item">
+        <div class="menu-item-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Favoriler
+        </div>
+        <span class="badge" id="favCount">0</span>
+      </div>
+
+      <div class="section-title">KLASÖRLER</div>
+      
+      <div id="klasorListesi"></div>
+    </div>
+    
+    <button class="btn-outline-dashed" onclick="openFolderModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Klasör Oluştur
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="search-bar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" placeholder="Notlarda ara...">
+      </div>
+      
+      <div class="topbar-actions">
+        <div class="view-toggles">
+          <button class="view-toggle-btn active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+          <button class="view-toggle-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          </button>
+        </div>
+        
+        <button class="btn-primary" onclick="openNoteModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Yeni Not
+        </button>
+      </div>
+    </header>
+
+    <div id="notlar" class="notes-container"></div>
+  </main>
+
+  <div id="noteModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Yeni Not Oluştur</h2>
+        <button class="close-btn" onclick="closeNoteModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="form-group">
+        <label style="font-size:0.9rem; color:var(--text-muted); margin-bottom:5px; display:block;">Klasör Seçimi</label>
+        <select id="notKlasorSecimi">
+          </select>
+      </div>
+      <div class="form-group">
+        <input id="isim" placeholder="Not Başlığı" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <textarea id="notInput" placeholder="Notunuzu buraya yazın..." autocomplete="off"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeNoteModal()">İptal</button>
+        <button class="btn-primary" onclick="notEkle()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="folderModal" class="modal-overlay">
+    <div class="folder-modal-content">
+      <div class="folder-modal-header">
+        <h2>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          Yeni Klasör
+        </h2>
+        <button class="close-btn" onclick="closeFolderModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="folder-modal-body">
+        <input type="text" id="yeniKlasorInput" class="folder-input" placeholder="Klasör adı giriniz..." autocomplete="off">
+        <div class="folder-modal-footer">
+          <button class="btn-cancel-folder" onclick="closeFolderModal()">Vazgeç</button>
+          <button class="btn-create-folder" onclick="klasorOlusturDB()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB5inXOt8jDTQre5RbSjXYwGVy2cSKpnV0",
+      authDomain: "sinif-not-defteri-1f8c6.firebaseapp.com",
+      projectId: "sinif-not-defteri-1f8c6",
+      storageBucket: "sinif-not-defteri-1f8c6.firebasestorage.app",
+      messagingSenderId: "987248792337",
+      appId: "1:987248792337:web:aed3b6a5bd77a6de4072b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const notlarRef = collection(db, "notlar");
+    const klasorlerRef = collection(db, "klasorler");
+
+    // Global Durum Değişkenleri
+    let aktifKlasorId = "all"; // Hangi klasördeyiz? (Varsayılan: Tüm Notlar)
+    let tumNotlarDizisi = []; // Firebase'den gelen tüm notlar hafızada tutulur
+
+    // ==========================================
+    // 1. KLASÖRLERİ FİREBASE'DEN ÇEKME VE LİSTELEME
+    // ==========================================
+    const klasorQuery = query(klasorlerRef, orderBy("tarih", "asc"));
+    onSnapshot(klasorQuery, (snapshot) => {
+      const klasorListesi = document.getElementById("klasorListesi");
+      const notKlasorSecimi = document.getElementById("notKlasorSecimi");
+      
+      klasorListesi.innerHTML = "";
+      notKlasorSecimi.innerHTML = ""; // Not ekleme modalındaki dropdown
+
+      let klasorVarMi = false;
+
+      snapshot.forEach((doc) => {
+        klasorVarMi = true;
+        const veri = doc.data();
+        const klasorId = doc.id;
+
+        // Sol Menüye (Sidebar) Ekle
+        const div = document.createElement("div");
+        div.className = `menu-item ${aktifKlasorId === klasorId ? 'active' : ''}`;
+        div.id = `klasor-${klasorId}`;
+        div.onclick = () => window.klasorDegistir(klasorId);
+        div.innerHTML = `
+          <div class="menu-item-left">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            ${veri.ad}
+          </div>
+        `;
+        klasorListesi.appendChild(div);
+
+        // Not Ekleme Modalındaki Dropdown'a (Select) Ekle
+        const option = document.createElement("option");
+        option.value = klasorId;
+        option.textContent = veri.ad;
+        if(aktifKlasorId === klasorId) option.selected = true;
+        notKlasorSecimi.appendChild(option);
+      });
+
+      // Eğer hiç klasör yoksa dropdown'a uyarı yaz
+      if(!klasorVarMi){
+        notKlasorSecimi.innerHTML = `<option value="">Önce bir klasör oluşturun...</option>`;
+      }
+    });
+
+    // ==========================================
+    // 2. NOTLARI FİREBASE'DEN ÇEKME VE FİLTRELEME
+    // ==========================================
+    const notQuery = query(notlarRef, orderBy("tarih", "desc"));
+    onSnapshot(notQuery, (snapshot) => {
+      tumNotlarDizisi = [];
+      snapshot.forEach((doc) => {
+        tumNotlarDizisi.push({ id: doc.id, ...doc.data() });
+      });
+      notlariEkranaBas(); // Veri geldiğinde ekrana bas
+    });
+
+    function notlariEkranaBas() {
+      const container = document.getElementById("notlar");
+      container.innerHTML = "";
+      
+      // Eğer "Tüm Notlar" (all) seçiliyse hepsini göster, değilse aktifKlasorId'ye göre filtrele
+      const gosterilecekNotlar = aktifKlasorId === "all" 
+        ? tumNotlarDizisi 
+        : tumNotlarDizisi.filter(not => not.klasorId === aktifKlasorId);
+
+      if(gosterilecekNotlar.length === 0) {
+        container.innerHTML = `<p style="color:#888; grid-column: 1 / -1;">Bu klasörde henüz not yok.</p>`;
+        return;
+      }
+
+      gosterilecekNotlar.forEach((n) => {
+        let tarihMetni = n.tarih ? n.tarih.toDate().toLocaleString("tr-TR", { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' }) : "";
+        container.innerHTML += `
+          <div class="note-card">
+            <h3>${n.isim}</h3>
+            <p>${n.metin}</p>
+            ${tarihMetni ? `<span class="note-date">${tarihMetni}</span>` : ''}
+          </div>`;
+      });
+    }
+
+    // ==========================================
+    // 3. KLASÖR SEÇİMİ (FİLTRELEME MANTIĞI)
+    // ==========================================
+    window.klasorDegistir = function(id) {
+      aktifKlasorId = id;
+      
+      // Sidebar "Aktif (Sarı)" görünümünü güncelle
+      document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+      
+      if(id === 'all') {
+        document.getElementById('menu-all').classList.add('active');
+      } else {
+        const secilenKlasorEl = document.getElementById(`klasor-${id}`);
+        if(secilenKlasorEl) secilenKlasorEl.classList.add('active');
+        
+        // Modal açılırken otomatik bu klasör seçili gelsin
+        document.getElementById("notKlasorSecimi").value = id;
+      }
+
+      notlariEkranaBas();
+    };
+
+    // ==========================================
+    // 4. MODAL AÇMA / KAPAMA İŞLEMLERİ
+    // ==========================================
+    window.openNoteModal = function() {
+      const klasorSelect = document.getElementById("notKlasorSecimi");
+      if(klasorSelect.options.length === 0 || klasorSelect.value === "") {
+        alert("Lütfen not eklemeden önce sol menüden yeni bir klasör oluşturun!");
+        return;
+      }
+      document.getElementById('noteModal').classList.add('active');
+    };
+    window.closeNoteModal = function() {
+      document.getElementById('noteModal').classList.remove('active');
+      document.getElementById("isim").value = "";
+      document.getElementById("notInput").value = "";
+    };
+
+    window.openFolderModal = function() {
+      document.getElementById('folderModal').classList.add('active');
+      setTimeout(() => document.getElementById("yeniKlasorInput").focus(), 100);
+    };
+    window.closeFolderModal = function() {
+      document.getElementById('folderModal').classList.remove('active');
+      document.getElementById("yeniKlasorInput").value = "";
+    };
+
+    // ==========================================
+    // 5. VERİTABANINA KAYIT İŞLEMLERİ
+    // ==========================================
+    window.klasorOlusturDB = async function() {
+      const klasorAdi = document.getElementById("yeniKlasorInput").value.trim();
+      if (!klasorAdi) return;
+      
+      await addDoc(klasorlerRef, {
+        ad: klasorAdi,
+        tarih: serverTimestamp()
+      });
+      
+      closeFolderModal();
+    };
+
+    window.notEkle = async function() {
+      const isim = document.getElementById("isim").value.trim();
+      const metin = document.getElementById("notInput").value.trim();
+      const secilenKlasorId = document.getElementById("notKlasorSecimi").value;
+      
+      if (!isim || !metin) return alert("Başlık ve not içeriği boş olamaz!");
+      if (!secilenKlasorId) return alert("Lütfen bir klasör seçin!");
+      
+      await addDoc(notlarRef, {
+        isim, 
+        metin, 
+        klasorId: secilenKlasorId, // Notu klasöre bağlıyoruz
+        tarih: serverTimestamp()
+      });
+      
+      closeNoteModal();
+    };
+
+  </script>
+</body>
+</html>
