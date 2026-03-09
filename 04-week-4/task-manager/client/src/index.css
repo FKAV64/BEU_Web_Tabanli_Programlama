@@ -490,13 +490,25 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .task-form {
@@ -603,6 +615,20 @@ body {
 
 .task-form__cancel-btn:hover {
   border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+/* Form validation errors */
+.task-form__input--error {
+  border-color: var(--accent-red) !important;
+  box-shadow: 0 0 10px var(--accent-red-glow) !important;
+}
+
+.task-form__error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--accent-red);
 }
 

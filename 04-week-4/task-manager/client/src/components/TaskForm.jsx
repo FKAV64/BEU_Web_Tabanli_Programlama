@@ -10,9 +10,13 @@ function TaskForm({ onCreateTask, onClose }) {
         subtasks: [],
     });
     const [subtaskInput, setSubtaskInput] = useState('');
+    const [titleError, setTitleError] = useState('');
+    const [dueDateError, setDueDateError] = useState('');
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+        if (field === 'title') setTitleError('');
+        if (field === 'dueDate') setDueDateError('');
     };
 
     const handleAddSubtask = () => {
@@ -36,7 +40,20 @@ function TaskForm({ onCreateTask, onClose }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.title.trim()) return;
+
+        let hasError = false;
+
+        if (formData.title.trim().length < 10) {
+            setTitleError('Başlık en az 10 karakter olmalıdır.');
+            hasError = true;
+        }
+
+        if (!formData.dueDate) {
+            setDueDateError('Bitiş tarihi seçilmelidir.');
+            hasError = true;
+        }
+
+        if (hasError) return;
 
         const taskData = {
             ...formData,
@@ -60,12 +77,13 @@ function TaskForm({ onCreateTask, onClose }) {
                     <label className="task-form__label">Başlık</label>
                     <input
                         type="text"
-                        className="task-form__input"
+                        className={`task-form__input ${titleError ? 'task-form__input--error' : ''}`}
                         placeholder="Görev başlığı..."
                         value={formData.title}
                         onChange={(e) => handleChange('title', e.target.value)}
                         autoFocus
                     />
+                    {titleError && <span className="task-form__error">{titleError}</span>}
                 </div>
 
                 {/* Description */}
@@ -114,10 +132,11 @@ function TaskForm({ onCreateTask, onClose }) {
                     <label className="task-form__label">Bitiş Tarihi</label>
                     <input
                         type="date"
-                        className="task-form__input"
+                        className={`task-form__input ${dueDateError ? 'task-form__input--error' : ''}`}
                         value={formData.dueDate}
                         onChange={(e) => handleChange('dueDate', e.target.value)}
                     />
+                    {dueDateError && <span className="task-form__error">{dueDateError}</span>}
                 </div>
 
                 {/* Subtasks */}
