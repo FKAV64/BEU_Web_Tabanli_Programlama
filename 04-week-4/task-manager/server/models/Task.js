@@ -19,7 +19,8 @@ const taskSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: [true, 'Task title is required'],
+            required: [true, 'Görev başlığı zorunludur'],
+            minlength: [10, 'Başlık en az 10 karakter olmalıdır'],
             trim: true,
         },
         description: {
@@ -44,7 +45,7 @@ const taskSchema = new mongoose.Schema(
         },
         dueDate: {
             type: Date,
-            default: null,
+            required: [true, 'Bitiş tarihi zorunludur'],
         },
         subtasks: [subtaskSchema],
     },
