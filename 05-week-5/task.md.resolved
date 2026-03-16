@@ -1,0 +1,67 @@
+# Implement the Authentication API
+
+- [x] Create [controllers/authController.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/authController.js)
+  - [x] Implement [register](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/authController.js#8-45) (hash password with bcryptjs)
+  - [x] Implement [login](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/context/AuthContext.jsx#29-45) (compare password, generate jwt)
+  - [x] Implement [getMe](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/authController.js#82-107) (return user payload)
+- [x] Create [middleware/authGuard.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/middleware/authGuard.js) (verify jwt using jsonwebtoken)
+- [x] Create [routes/authRoutes.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/routes/authRoutes.js) (wire up endpoints to authController)
+- [x] Create/Update [server.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/server.js) (mount authRoutes under `/api/auth`)
+
+# Implement the Post API
+
+- [x] Create [controllers/postController.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js)
+  - [x] Implement [getPosts](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#4-58) (fetch feed ordered by createdAt desc)
+  - [x] Implement [createPost](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#59-82) (create a new post)
+  - [x] Implement [deletePost](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#83-111) (delete a post if user is author)
+  - [x] Implement [toggleLike](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#112-153) (toggle a like on a post)
+  - [x] Implement [addComment](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#154-183) (add a comment to a post)
+- [x] Create [routes/postRoutes.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/routes/postRoutes.js) (wire up endpoints to postController)
+- [x] Update [server.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/server.js) (mount postRoutes under `/api/posts`)
+
+# Implement the React Frontend
+
+- [x] Create [services/api.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/services/api.js) (Axios instance with JWT interceptor)
+- [x] Create [components/PostCard.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/components/PostCard.jsx) (display post, like, comment, delete)
+- [x] Create [pages/FeedPage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/FeedPage.jsx) (fetch and display posts)
+
+# Implement Frontend Authentication Flow
+
+- [x] Create [context/AuthContext.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/context/AuthContext.jsx)
+- [x] Create [pages/LoginPage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/LoginPage.jsx)
+- [x] Create [pages/RegisterPage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/RegisterPage.jsx)
+- [x] Create [components/ProtectedRoute.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/components/ProtectedRoute.jsx)
+- [x] Update [App.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/App.jsx) with routing
+
+# Implement Profile Pictures
+
+- [x] Backend: Add [updateProfile](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/authController.js#108-133) controller & PUT `/profile` route
+- [x] Frontend Context: Add [updateUserAvatar](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/context/AuthContext.jsx#65-77)
+- [x] UI: Create [pages/ProfilePage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/ProfilePage.jsx) and add to routing
+- [x] UI: Update [PostCard.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/components/PostCard.jsx) and Navbar to display avatars with fallback
+
+# Implement Post Editing
+
+- [x] Backend: Add [updatePost](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#184-221) controller & PUT `/posts/:id` route
+- [x] UI: Update [PostCard.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/components/PostCard.jsx) with Edit mode (isEditing state)
+- [x] UI: Conditionally render textarea and 'Save' button in [PostCard.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/components/PostCard.jsx)
+
+# Implement Search and Pagination
+
+- [x] Backend: Modify [getPosts](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#4-58) to accept `search`, `page`, and `limit` from `req.query`
+- [x] Backend: Update prisma query with `take`, `skip`, and `where` for search
+- [x] Backend: Add `totalPosts` and `totalPages` to response
+- [x] UI: Update [FeedPage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/FeedPage.jsx) to manage state for `search`, `page`, and `totalPages`
+- [x] UI: Add search input to [FeedPage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/FeedPage.jsx) above the feed
+- [x] UI: Add pagination controls (Previous/Next buttons, Current Page) at bottom of feed
+- [x] UI: Update [fetchData](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/FeedPage.jsx#17-47) in [FeedPage.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/FeedPage.jsx) to include query params
+
+# Implement Admin Panel
+
+- [x] Backend: Create [middleware/roleGuard.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/middleware/roleGuard.js) to check for 'admin' role
+- [x] Backend: Update [deletePost](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js#83-111) in [postController.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/postController.js) to allow admin deletion
+- [x] Backend: Create [adminController.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/adminController.js) with [getAllUsers](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/controllers/adminController.js#4-27)
+- [x] Backend: Create [adminRoutes.js](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/routes/adminRoutes.js) and mount at `/api/admin`
+- [x] Frontend: Create [pages/AdminPanel.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/pages/AdminPanel.jsx) to fetch and display users
+- [x] Frontend: Update Navbar in [App.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/App.jsx) to include 'Admin Panel' link conditionally
+- [x] Frontend: Add protected route for `/admin` in [App.jsx](file:///e:/DELL5580/Studies/School_web_programming/BEU_Web_Tabanli_Programlama/05-week-5/minisosyal/client/src/App.jsx)
