@@ -1,0 +1,114 @@
+@nestjs = http://localhost:3000
+@go = http://localhost:8080
+@apiKey = test-api-key-change-me
+@token = super-secret-key-change-me
+
+### G1.1 — Create User
+POST {{nestjs}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "password": "password123"
+}
+
+### G1.2 — Duplicate User 409
+POST {{nestjs}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "password": "password123"
+}
+
+### G8.1 — Register
+POST {{nestjs}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Auth User",
+  "email": "authuser@example.com",
+  "password": "password123"
+}
+
+### G8.2 — Login
+POST {{nestjs}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "authuser@example.com",
+  "password": "password123"
+}
+
+### G8.4 — Protected Event Create
+POST {{nestjs}}/api/v1/events
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Hackathon 2026",
+  "description": "Annual tech hackathon",
+  "category": "Technology",
+  "city": "Istanbul",
+  "date": "2026-10-15T09:00:00Z",
+  "maxParticipants": 150
+}
+
+### G2.2 — Pagination
+GET {{nestjs}}/api/v1/events?page=1&limit=5&sort=date&order=desc
+
+### G3.1 — query events
+POST {{nestjs}}/graphql
+Content-Type: application/json
+X-REQUEST-TYPE: GraphQL
+
+{
+  "query": "query { events { id title category city maxParticipants } }"
+}
+
+### G3.2 — nested participants
+POST {{nestjs}}/graphql
+Content-Type: application/json
+X-REQUEST-TYPE: GraphQL
+
+{
+  "query": "query { events { id title participants { id name email } } }"
+}
+
+### G3.3 — joinEvent mutation
+POST {{nestjs}}/graphql
+Content-Type: application/json
+X-REQUEST-TYPE: GraphQL
+Authorization: Bearer {{token}}
+
+{
+  "query": "mutation { joinEvent(eventId: \"1\") { id title participants { id name } } }"
+}
+
+### G7.1 — No API Key 401
+GET {{go}}/api/v1/analytics/popular
+
+### G7.3 — With API Key 200
+GET {{go}}/api/v1/analytics/popular
+X-API-Key: {{apiKey}}
+
+### G6.1 — Popular events analytics
+GET {{go}}/api/v1/analytics/popular
+X-API-Key: {{apiKey}}
+
+### G5.1 — Webhook manual trigger
+POST {{go}}/api/v1/webhooks/events
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+X-Webhook-Signature: valid-hash-value-here
+
+{
+  "event": "event.created",
+  "data": {
+    "id": 1,
+    "title": "Welcome Event",
+    "date": "2026-06-01T10:00:00Z"
+  }
+}
