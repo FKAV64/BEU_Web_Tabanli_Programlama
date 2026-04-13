@@ -1,0 +1,657 @@
+basePath: /api
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  handlers.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.RegisterInput:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  handlers.SubmitAnswer:
+    properties:
+      answers:
+        additionalProperties:
+          type: string
+        description: 'question_id: "a"/"b"/"c"/"d"'
+        type: object
+    type: object
+  models.Course:
+    properties:
+      category:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      lessons:
+        items:
+          $ref: '#/definitions/models.Lesson'
+        type: array
+      teacher:
+        $ref: '#/definitions/models.User'
+      teacher_id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - title
+    type: object
+  models.Lesson:
+    properties:
+      content:
+        type: string
+      course_id:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      order:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      video_url:
+        type: string
+    required:
+    - title
+    type: object
+  models.Question:
+    properties:
+      correct:
+        description: '"a", "b", "c", "d"'
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      option_a:
+        type: string
+      option_b:
+        type: string
+      option_c:
+        type: string
+      option_d:
+        type: string
+      quiz_id:
+        type: integer
+      text:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - correct
+    - text
+    type: object
+  models.Quiz:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      lesson_id:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/models.Question'
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - title
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        description: '"teacher" veya "student"'
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - email
+    - name
+    type: object
+host: localhost:8090
+info:
+  contact: {}
+  description: Uzaktan Eğitim Platformu REST API
+  title: GoLearn API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: E-posta ve şifre ile giriş yapar, JWT döner
+      parameters:
+      - description: Giriş bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Kullanıcı girişi
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Yeni bir öğrenci veya öğretmen hesabı oluşturur
+      parameters:
+      - description: Kayıt bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Yeni kullanıcı kaydı
+      tags:
+      - auth
+  /courses:
+    get:
+      description: Sayfalama, kategori filtreleme ve sıralama ile kursları getirir
+      parameters:
+      - description: Sayfa numarası (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Sayfa başına limit (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Kategori filtreleme
+        in: query
+        name: category
+        type: string
+      - description: 'Sıralama (örnek: title asc)'
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Tüm kursları listele
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Öğretmen rolüne sahip kullanıcı yeni kurs oluşturur
+      parameters:
+      - description: Kurs bilgileri
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/models.Course'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Yeni kurs oluştur
+      tags:
+      - courses
+  /courses/{id}:
+    delete:
+      description: Sadece kursun sahibi olan öğretmen kursu silebilir
+      parameters:
+      - description: Kurs ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kursu sil
+      tags:
+      - courses
+    get:
+      description: ID bazlı kurs detayı ve içindeki dersleri getirir
+      parameters:
+      - description: Kurs ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Course'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Kurs detaylarını getir
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Sadece kursun sahibi olan öğretmen kursu güncelleyebilir
+      parameters:
+      - description: Kurs ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Yeni kurs bilgileri
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/models.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kursu güncelle
+      tags:
+      - courses
+  /courses/{id}/lessons:
+    get:
+      description: ID bazlı bir kursun içindeki tüm dersleri listeler
+      parameters:
+      - description: Kurs ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Lesson'
+            type: array
+      summary: Kursun derslerini getir
+      tags:
+      - lessons
+    post:
+      consumes:
+      - application/json
+      description: Sadece kursun sahibi olan öğretmen ders ekleyebilir
+      parameters:
+      - description: Kurs ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Ders bilgileri
+        in: body
+        name: lesson
+        required: true
+        schema:
+          $ref: '#/definitions/models.Lesson'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Lesson'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kursa yeni ders ekle
+      tags:
+      - lessons
+  /lessons/{id}/complete:
+    post:
+      description: Bir dersi izlendi/tamamlandı diye kaydeder
+      parameters:
+      - description: Ders ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dersi tamamlandı olarak işaretle
+      tags:
+      - progress
+  /lessons/{id}/quiz:
+    get:
+      description: Ders ID bazlı quizi ve sorularını listeler
+      parameters:
+      - description: Ders ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Quiz'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Dersin quizini getir
+      tags:
+      - quiz
+    post:
+      consumes:
+      - application/json
+      description: Derse ait soruları içeren bir quiz oluşturur
+      parameters:
+      - description: Ders ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Quiz bilgileri
+        in: body
+        name: quiz
+        required: true
+        schema:
+          $ref: '#/definitions/models.Quiz'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Quiz'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Yeni quiz oluştur
+      tags:
+      - quiz
+  /my/progress:
+    get:
+      description: Her kurs için toplam ders, tamamlanan ders ve yüzde bilgisini döner
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Kullanıcının tüm kurslardaki ilerlemesini getir
+      tags:
+      - progress
+  /quiz/{id}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Soruların cevaplarını gönderir, puanı hesaplar ve kaydeder
+      parameters:
+      - description: Quiz ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Cevaplar
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SubmitAnswer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Quizi çöz ve gönder
+      tags:
+      - quiz
+  /ws/classroom/{courseId}:
+    get:
+      description: Kurs ID bazlı gerçek zamanlı sohbet ve etkileşim kanalını açar
+      parameters:
+      - description: Kurs ID
+        in: path
+        name: courseId
+        required: true
+        type: integer
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Canlı sınıfa bağlan (WebSocket)
+      tags:
+      - websocket
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

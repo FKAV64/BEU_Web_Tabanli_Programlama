@@ -58,6 +58,13 @@ func (room *Classroom) run() {
 	}
 }
 
+// @Summary Canlı sınıfa bağlan (WebSocket)
+// @Description Kurs ID bazlı gerçek zamanlı sohbet ve etkileşim kanalını açar
+// @Tags websocket
+// @Param courseId path int true "Kurs ID"
+// @Success 101 {string} string "Switching Protocols"
+// @Security BearerAuth
+// @Router /ws/classroom/{courseId} [get]
 func ClassroomWS(c *gin.Context) {
 	courseID := c.Param("courseId")
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)

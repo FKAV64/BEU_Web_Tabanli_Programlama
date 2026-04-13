@@ -8,6 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Dersi tamamlandı olarak işaretle
+// @Description Bir dersi izlendi/tamamlandı diye kaydeder
+// @Tags progress
+// @Produce json
+// @Param id path int true "Ders ID"
+// @Success 200 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /lessons/{id}/complete [post]
 func CompleteLesson(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var lesson models.Lesson
@@ -28,6 +37,13 @@ func CompleteLesson(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Ders tamamlandı"})
 }
 
+// @Summary Kullanıcının tüm kurslardaki ilerlemesini getir
+// @Description Her kurs için toplam ders, tamamlanan ders ve yüzde bilgisini döner
+// @Tags progress
+// @Produce json
+// @Success 200 {array} map[string]interface{}
+// @Security BearerAuth
+// @Router /my/progress [get]
 func GetProgress(c *gin.Context) {
 	userID := c.GetUint("user_id")
 

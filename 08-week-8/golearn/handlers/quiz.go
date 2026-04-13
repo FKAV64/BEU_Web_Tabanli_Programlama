@@ -10,6 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Dersin quizini getir
+// @Description Ders ID bazlı quizi ve sorularını listeler
+// @Tags quiz
+// @Produce json
+// @Param id path int true "Ders ID"
+// @Success 200 {object} models.Quiz
+// @Failure 404 {object} map[string]string
+// @Router /lessons/{id}/quiz [get]
 func GetQuiz(c *gin.Context) {
 	var quiz models.Quiz
 	if err := database.DB.Preload("Questions").Where("lesson_id = ?", c.Param("id")).First(&quiz).Error; err != nil {
@@ -19,6 +27,18 @@ func GetQuiz(c *gin.Context) {
 	c.JSON(http.StatusOK, quiz)
 }
 
+// @Summary Yeni quiz oluştur
+// @Description Derse ait soruları içeren bir quiz oluşturur
+// @Tags quiz
+// @Accept json
+// @Produce json
+// @Param id path int true "Ders ID"
+// @Param quiz body models.Quiz true "Quiz bilgileri"
+// @Success 201 {object} models.Quiz
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /lessons/{id}/quiz [post]
 func CreateQuiz(c *gin.Context) {
 	var quiz models.Quiz
 	if err := c.ShouldBindJSON(&quiz); err != nil {
@@ -40,6 +60,18 @@ type SubmitAnswer struct {
 	Answers map[string]string `json:"answers"` // question_id: "a"/"b"/"c"/"d"
 }
 
+// @Summary Quizi çöz ve gönder
+// @Description Soruların cevaplarını gönderir, puanı hesaplar ve kaydeder
+// @Tags quiz
+// @Accept json
+// @Produce json
+// @Param id path int true "Quiz ID"
+// @Param input body SubmitAnswer true "Cevaplar"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Security BearerAuth
+// @Router /quiz/{id}/submit [post]
 func SubmitQuiz(c *gin.Context) {
 	var input SubmitAnswer
 	if err := c.ShouldBindJSON(&input); err != nil {

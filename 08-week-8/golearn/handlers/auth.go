@@ -22,6 +22,16 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// @Summary Yeni kullanıcı kaydı
+// @Description Yeni bir öğrenci veya öğretmen hesabı oluşturur
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body RegisterInput true "Kayıt bilgileri"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 409 {object} map[string]string
+// @Router /auth/register [post]
 func Register(c *gin.Context) {
 	var input RegisterInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -53,6 +63,16 @@ func Register(c *gin.Context) {
 	})
 }
 
+// @Summary Kullanıcı girişi
+// @Description E-posta ve şifre ile giriş yapar, JWT döner
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body LoginInput true "Giriş bilgileri"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /auth/login [post]
 func Login(c *gin.Context) {
 	var input LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
