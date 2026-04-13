@@ -2,3 +2,5 @@
 golearn.db
 *.exe
 .env
+vendor/
+
