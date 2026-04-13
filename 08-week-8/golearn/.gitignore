@@ -1,0 +1,4 @@
+# Git'ten haric tutulan dosyalar
+golearn.db
+*.exe
+.env
