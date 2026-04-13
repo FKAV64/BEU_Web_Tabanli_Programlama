@@ -1,6 +1,6 @@
 # CampusConnect
-Öğrenci: ABDOU VALERIO FOMA KENFACK
-Okul No: 24080410152
+Öğrenci: xxxxxxxxxxxxxxx
+Okul No: ***************
 
 ## Setup & Deployment Instructions
 
